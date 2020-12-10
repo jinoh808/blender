@@ -21,7 +21,7 @@ def draw_callback_px(self, context):
     bgl.glLineWidth(2)
     batch = batch_for_shader(shader, 'LINE_STRIP', {"pos": self.mouse_path})
     shader.bind()
-    shader.uniform_float("color", (0.0, 0.0, 0.0, 0.5))
+    shader.uniform_float("color", (1.0, 1.0, 1.0, 0.5))
     batch.draw(shader)
 
     # restore opengl defaults
@@ -31,8 +31,8 @@ def draw_callback_px(self, context):
 
 class ModalDrawOperator(bpy.types.Operator):
     """Draw a line with the mouse"""
-    bl_idname = "view3d.modal_operator"
-    bl_label = "Simple Modal View3D Operator"
+    bl_idname = "text_editor.modal_operator"
+    bl_label = "Simple Modal TEXT_EDITOR Operator"
 
     def modal(self, context, event):
         context.area.tag_redraw()
@@ -41,22 +41,22 @@ class ModalDrawOperator(bpy.types.Operator):
             self.mouse_path.append((event.mouse_region_x, event.mouse_region_y))
 
         elif event.type == 'LEFTMOUSE':
-            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+            bpy.types.SpaceTextEditor.draw_handler_remove(self._handle, 'WINDOW')
             return {'FINISHED'}
 
         elif event.type in {'RIGHTMOUSE', 'ESC'}:
-            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+            bpy.types.SpaceTextEditor.draw_handler_remove(self._handle, 'WINDOW')
             return {'CANCELLED'}
 
         return {'RUNNING_MODAL'}
 
     def invoke(self, context, event):
-        if context.area.type == 'VIEW_3D':
+        if context.area.type == 'TEXT_EDITOR':
             # the arguments we pass the the callback
             args = (self, context)
             # Add the region OpenGL drawing callback
-            # draw in view space with 'POST_VIEW' and 'PRE_VIEW'
-            self._handle = bpy.types.SpaceView3D.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
+            # draw in TEXT_EIDTOR space with 'POST_VIEW' and 'PRE_VIEW'
+            self._handle = bpy.types.SpaceTextEditor.draw_handler_add(draw_callback_px, args, 'WINDOW', 'POST_PIXEL')
 
             self.mouse_path = []
 
@@ -77,3 +77,4 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+    bpy.ops.text_editor.modal_operator('INVOKE_DEFAULT')
