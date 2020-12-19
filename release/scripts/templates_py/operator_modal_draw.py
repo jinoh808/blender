@@ -1,3 +1,24 @@
+#################################################################################################
+# How to test?                                                                                  #
+#  1. Run this script in text editor                                                            #
+#  2. Locate mouse pointer on text editor and Press F3 key                                      #
+#  3. Search operator with "bl_name"                                                            #
+#    (In this case it's "Simple Modal Draw Operator")                                           #
+#  4. Click "Simple Modal Draw Operator" and move mouse pointer!                                #
+#    (First item is last added operator)                                                        #
+#  5. Right click to finish test                                                                #
+#                                                                                               #
+# If you want to draw on other space.                                                           #
+#  0. If you follow this instruction, you can draw on VIEW3D area                               #
+#    (if you draw on other area which is not VIEW3D, check instrouction number 5 first)         #
+#  1. Change 'TEXT_EDITOR' into 'VIEW_3D'                                                       # 
+#  2. Change all "SpaceTextEditor" in script into "SpaceView3D"                                 #
+#  3. Run script and move mouse pointer to VIEW3D                                               #
+#  4. Follow the how to test instructions from number 2                                         #
+#  5. you can check other possible options in this page                                         #
+#     https://docs.blender.org/api/current/bpy.types.Space.html?highlight=space#bpy.types.Space #
+#################################################################################################
+
 import bpy
 import bgl
 import blf
@@ -31,8 +52,8 @@ def draw_callback_px(self, context):
 
 class ModalDrawOperator(bpy.types.Operator):
     """Draw a line with the mouse"""
-    bl_idname = "text_editor.modal_operator"
-    bl_label = "Simple Modal TEXT_EDITOR Operator"
+    bl_idname = "template.modal_operator"
+    bl_label = "Simple Modal Draw Operator"
 
     def modal(self, context, event):
         context.area.tag_redraw()
@@ -63,7 +84,7 @@ class ModalDrawOperator(bpy.types.Operator):
             context.window_manager.modal_handler_add(self)
             return {'RUNNING_MODAL'}
         else:
-            self.report({'WARNING'}, "View3D not found, cannot run operator")
+            self.report({'WARNING'}, "Area found, cannot run operator")
             return {'CANCELLED'}
 
 
@@ -74,7 +95,9 @@ def register():
 def unregister():
     bpy.utils.unregister_class(ModalDrawOperator)
 
+def menu_func(self, context):
+    self.layout.operator(ModalDrawOperator.bl_idname)
 
 if __name__ == "__main__":
     register()
-    bpy.ops.text_editor.modal_operator('INVOKE_DEFAULT')
+    bpy.types.TOPBAR_MT_app_system.append(menu_func)
